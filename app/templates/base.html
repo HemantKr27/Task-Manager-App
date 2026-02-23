@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Task Manager{% endblock %}</title>
+
+    <!-- Tailwind CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex flex-col">
+
+    <!-- Navbar -->
+    <nav class="bg-white shadow-md">
+        <div class="max-w-6xl mx-auto px-4">
+            <div class="flex justify-between items-center h-16">
+
+                <!-- Logo -->
+                <div>
+                    <a href="/" class="text-2xl font-bold text-blue-600">
+                        TaskManager
+                    </a>
+                </div>
+
+                <!-- Links -->
+                <div class="space-x-6">
+                    {% if current_user.is_authenticated %}
+                        <span class="text-gray-700 font-medium">
+                            Hi, {{ current_user.username }}
+                        </span>
+
+                        <a href="{{ url_for('main.dashboard') }}"
+                           class="text-gray-600 hover:text-blue-600 transition">
+                           Dashboard
+                        </a>
+
+                        <a href="{{ url_for('auth.logout') }}"
+                           class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">
+                           Logout
+                        </a>
+                    {% else %}
+                        <a href="{{ url_for('auth.login') }}"
+                           class="text-gray-600 hover:text-blue-600 transition">
+                           Login
+                        </a>
+
+                        <a href="{{ url_for('auth.register') }}"
+                           class="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition">
+                           Register
+                        </a>
+                    {% endif %}
+                </div>
+
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    <div class="max-w-4xl mx-auto mt-6 px-4">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="mb-4 p-4 rounded-lg
+                        {% if category == 'success' %}
+                            bg-green-100 text-green-700
+                        {% elif category == 'danger' %}
+                            bg-red-100 text-red-700
+                        {% else %}
+                            bg-blue-100 text-blue-700
+                        {% endif %}
+                    ">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main Content -->
+    <main class="flex-grow max-w-6xl mx-auto w-full px-4 py-10">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white text-center py-4 shadow-inner mt-auto">
+        <p class="text-gray-500 text-sm">
+            © 2026 Task Manager. Built with Flask.
+        </p>
+    </footer>
+
+</body>
+</html>
