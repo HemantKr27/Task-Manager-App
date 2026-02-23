@@ -22,19 +22,19 @@
 
         <div class="bg-white p-6 rounded-2xl shadow">
             <p class="text-gray-500 text-sm">Total Tasks</p>
-            <h2 class="text-3xl font-bold mt-2">{{ tasks|length }}</h2>
+            <h2 id ="total-count" class="text-3xl font-bold mt-2">{{ tasks|length }}</h2>
         </div>
 
         <div class="bg-white p-6 rounded-2xl shadow">
             <p class="text-gray-500 text-sm">Completed</p>
-            <h2 class="text-3xl font-bold mt-2">
+            <h2 id = "completed-count" class="text-3xl font-bold mt-2">
                 {{ tasks|selectattr('completed')|list|length }}
             </h2>
         </div>
 
         <div class="bg-white p-6 rounded-2xl shadow">
             <p class="text-gray-500 text-sm">Pending</p>
-            <h2 class="text-3xl font-bold mt-2">
+            <h2 id = "pending-count" class="text-3xl font-bold mt-2">
                 {{ tasks|rejectattr('completed')|list|length }}
             </h2>
         </div>
@@ -69,7 +69,7 @@
                 <div class="flex justify-between items-center border-b pb-3">
 
                     <div>
-                        <h3 class="font-medium text-lg
+                        <h3 id = "task-title-{{task.id}}" class="font-medium text-lg
                             {% if task.completed %}
                                 line-through text-gray-400
                             {% else %}
@@ -78,22 +78,21 @@
                             {{ task.title }}
                         </h3>
 
-                       <form method="POST" action="{{ url_for('main.complete_task', task_id=task.id) }}">
-                            <button type="submit"
-                                class="px-3 py-1 rounded-lg text-sm
-                                {% if task.completed %}
-                                    bg-yellow-500 hover:bg-yellow-600
-                                {% else %}
-                                    bg-green-500 hover:bg-green-600
-                                {% endif %}
-                                text-white">
-                                {% if task.completed %}
-                                    Undo
-                                {% else %}
-                                    Complete
-                                {% endif %}
-                            </button>
-                        </form>
+                       <button 
+                            onclick="toggleTask({{ task.id }}, this)"
+                            class="px-3 py-1 rounded-lg text-sm text-white
+                            {% if task.completed %}
+                                bg-yellow-500
+                            {% else %}
+                                bg-green-500
+                            {% endif %}">
+                            
+                            {% if task.completed %}
+                                Undo
+                            {% else %}
+                                Complete
+                            {% endif %}
+                        </button>
 
                         
                     </div>
@@ -120,4 +119,55 @@
     </div>
 
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+function toggleTask(taskId, button) {
+    fetch(`/complete/${taskId}`, {
+        method: "POST",
+        headers: {
+            "X-Requested-With": "XMLHttpRequest"
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+
+        if (data.success) {
+            const title = document.getElementById(`task-title-${taskId}`);
+
+            if (data.completed) {
+                button.innerText = "Undo";
+                button.classList.remove("bg-green-500");
+                button.classList.add("bg-yellow-500");
+                title.classList.add("line-through", "text-gray-400");
+            } else {
+                button.innerText = "Complete";
+                button.classList.remove("bg-yellow-500");
+                button.classList.add("bg-green-500");
+                title.classList.remove("line-through", "text-gray-400");
+            }
+        }
+
+        const totalEl = document.getElementById("total-count");
+const completedEl = document.getElementById("completed-count");
+const pendingEl = document.getElementById("pending-count");
+
+let total = parseInt(totalEl.innerText);
+let completed = parseInt(completedEl.innerText);
+let pending = parseInt(pendingEl.innerText);
+
+if (data.completed) {
+    completed++;
+    pending--;
+} else {
+    completed--;
+    pending++;
+}
+
+completedEl.innerText = completed;
+pendingEl.innerText = pending;
+    });
+}
+</script>
 {% endblock %}

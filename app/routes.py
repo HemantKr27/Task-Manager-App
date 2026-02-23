@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from flask import Blueprint, render_template, request, redirect, url_for, flash, jsonify
 from flask_login import login_required, current_user
 from app.models import Task
 from app import db
@@ -51,7 +51,12 @@ def complete_task(task_id):
     db.session.commit()
 
     #flash("Task marked as completed!", "success")
-    return redirect(url_for("main.dashboard"))
+    #return redirect(url_for("main.dashboard"))
+    return jsonify({
+        "success": True,
+        "completed": task.completed
+    })
+
 
 @main.route("/delete/<int:task_id>", methods = ["POST"])
 @login_required
