@@ -47,11 +47,10 @@ def complete_task(task_id):
     if task.user_id != current_user.id:
         flash("Unauthorized action", "danger")
         return redirect(url_for("main.dashboard"))
-    
-    task.completed = True
+    task.completed = not task.completed
     db.session.commit()
 
-    flash("Task marked as completed!", "success")
+    #flash("Task marked as completed!", "success")
     return redirect(url_for("main.dashboard"))
 
 @main.route("/delete/<int:task_id>", methods = ["POST"])

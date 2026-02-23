@@ -17,6 +17,30 @@
        
     </div>
 
+    <!-- Stats Cards -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+
+        <div class="bg-white p-6 rounded-2xl shadow">
+            <p class="text-gray-500 text-sm">Total Tasks</p>
+            <h2 class="text-3xl font-bold mt-2">{{ tasks|length }}</h2>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow">
+            <p class="text-gray-500 text-sm">Completed</p>
+            <h2 class="text-3xl font-bold mt-2">
+                {{ tasks|selectattr('completed')|list|length }}
+            </h2>
+        </div>
+
+        <div class="bg-white p-6 rounded-2xl shadow">
+            <p class="text-gray-500 text-sm">Pending</p>
+            <h2 class="text-3xl font-bold mt-2">
+                {{ tasks|rejectattr('completed')|list|length }}
+            </h2>
+        </div>
+    </div>
+
+
     <!-- Add Task Card -->
     <div class="bg-white p-6 rounded-2xl shadow mb-8">
         <h2 class="text-xl font-semibold mb-4">Add New Task</h2>
@@ -54,23 +78,27 @@
                             {{ task.title }}
                         </h3>
 
-                        {% if task.completed %}
-                            <span class="text-sm text-green-500">Completed</span>
-                        {% else %}
-                            <span class="text-sm text-yellow-500">Pending</span>
-                        {% endif %}
+                       <form method="POST" action="{{ url_for('main.complete_task', task_id=task.id) }}">
+                            <button type="submit"
+                                class="px-3 py-1 rounded-lg text-sm
+                                {% if task.completed %}
+                                    bg-yellow-500 hover:bg-yellow-600
+                                {% else %}
+                                    bg-green-500 hover:bg-green-600
+                                {% endif %}
+                                text-white">
+                                {% if task.completed %}
+                                    Undo
+                                {% else %}
+                                    Complete
+                                {% endif %}
+                            </button>
+                        </form>
+
+                        
                     </div>
 
                     <div class="flex gap-3">
-
-                        {% if not task.completed %}
-                        <form method= "POST" action="{{ url_for('main.complete_task', task_id=task.id) }}">
-                            <button type="submit"
-                                class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-lg text-sm">
-                                Complete
-                            </button>
-                        </form>
-                        {% endif %}
 
                         <form method="POST" action="{{ url_for('main.delete_task', task_id=task.id) }}">
                             <button type="submit"
@@ -91,6 +119,5 @@
         {% endif %}
     </div>
 
-</div>
 
 {% endblock %}
