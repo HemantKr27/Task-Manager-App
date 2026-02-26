@@ -2,172 +2,191 @@
 
 {% block content %}
 
-<div class="max-w-5xl mx-auto mt-10 px-4">
+<div class="flex min-h-screen">
 
-    <!-- Header -->
-    <div class="flex justify-between items-center mb-8">
-        <div>
-            <h1 class="text-3xl font-bold text-gray-800">
+    <!-- Sidebar (LEFT FIXED) -->
+    <aside id="dashSidebar"
+        class="fixed left-0 top-0 h-screen
+               w-64
+               bg-white dark:bg-gray-900
+               border-r border-gray-200 dark:border-gray-700
+               shadow-xl
+               transition-all duration-300 z-40">
+
+        <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
+            <span id="sidebarTitle" class="text-xl font-bold text-blue-600">
+                TaskManager
+            </span>
+            <button onclick="toggleDashSidebar()" class="text-gray-500 hover:text-black dark:hover:text-white">
+                ☰
+            </button>
+        </div>
+
+        <nav class="p-4 space-y-2">
+
+            <a href="{{ url_for('main.dashboard') }}"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl
+                      bg-blue-600 text-white shadow-md">
+                📊 <span class="sidebar-text">Dashboard</span>
+            </a>
+
+            <a href="#"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl
+                      hover:bg-gray-200 dark:hover:bg-gray-800 transition">
+                📋 <span class="sidebar-text">My Tasks</span>
+            </a>
+
+            <a href="{{ url_for('auth.logout') }}"
+               class="flex items-center gap-3 px-4 py-3 rounded-xl
+                      text-red-500 hover:bg-red-100 dark:hover:bg-red-900 transition">
+                🚪 <span class="sidebar-text">Logout</span>
+            </a>
+
+        </nav>
+    </aside>
+
+
+    <!-- Main Content (SHIFTED RIGHT) -->
+    <div id="mainContent"
+         class="flex-1 ml-64 p-10 transition-all duration-300">
+
+        <!-- Header -->
+        <div class="mb-10">
+            <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-200">
                 Welcome, {{ current_user.username }} 👋
             </h1>
-            <p class="text-gray-500 mt-1">
+            <p class="text-gray-500 dark:text-gray-400 mt-1">
                 Manage your tasks efficiently and stay productive.
             </p>
         </div>
-       
-    </div>
 
-    <!-- Stats Cards -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <!-- Stats -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
 
-        <div class="bg-white p-6 rounded-2xl shadow">
-            <p class="text-gray-500 text-sm">Total Tasks</p>
-            <h2 id ="total-count" class="text-3xl font-bold mt-2">{{ tasks|length }}</h2>
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                <p class="text-gray-500 text-sm">Total Tasks</p>
+                <h2 id="total-count"
+                    class="text-3xl font-bold mt-2 text-blue-600">
+                    {{ tasks|length }}
+                </h2>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                <p class="text-gray-500 text-sm">Completed</p>
+                <h2 id="completed-count"
+                    class="text-3xl font-bold mt-2 text-green-500">
+                    {{ tasks|selectattr('completed')|list|length }}
+                </h2>
+            </div>
+
+            <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
+                <p class="text-gray-500 text-sm">Pending</p>
+                <h2 id="pending-count"
+                    class="text-3xl font-bold mt-2 text-red-500">
+                    {{ tasks|rejectattr('completed')|list|length }}
+                </h2>
+            </div>
+
         </div>
 
-        <div class="bg-white p-6 rounded-2xl shadow">
-            <p class="text-gray-500 text-sm">Completed</p>
-            <h2 id = "completed-count" class="text-3xl font-bold mt-2">
-                {{ tasks|selectattr('completed')|list|length }}
-            </h2>
+        <!-- Add Task -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg mb-10">
+
+            <h2 class="text-xl font-semibold mb-4">Add New Task</h2>
+
+            <form method="POST"
+                  action="{{ url_for('main.add_task') }}"
+                  class="flex gap-4">
+
+                <input type="text"
+                       name="title"
+                       placeholder="Enter task title..."
+                       required
+                       class="flex-1 rounded-xl px-4 py-3
+                              bg-gray-100 dark:bg-gray-700
+                              focus:ring-2 focus:ring-blue-500 outline-none">
+
+                <button type="submit"
+                        class="bg-blue-600 hover:bg-blue-700
+                               text-white px-6 py-3 rounded-xl shadow-lg transition">
+                    Add
+                </button>
+            </form>
         </div>
 
-        <div class="bg-white p-6 rounded-2xl shadow">
-            <p class="text-gray-500 text-sm">Pending</p>
-            <h2 id = "pending-count" class="text-3xl font-bold mt-2">
-                {{ tasks|rejectattr('completed')|list|length }}
-            </h2>
-        </div>
-    </div>
+        <!-- Tasks -->
+        <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl shadow-lg">
 
+            <h2 class="text-xl font-semibold mb-6">Your Tasks</h2>
 
-    <!-- Add Task Card -->
-    <div class="bg-white p-6 rounded-2xl shadow mb-8">
-        <h2 class="text-xl font-semibold mb-4">Add New Task</h2>
+            {% if tasks %}
+                <div class="space-y-4">
+                    {% for task in tasks %}
+                    <div class="flex justify-between items-center
+                                p-4 rounded-xl
+                                hover:bg-gray-100 dark:hover:bg-gray-700 transition">
 
-        <form method="POST" action="{{ url_for('main.add_task') }}" class="flex gap-4">
-            <input type="text"
-                   name="title"
-                   placeholder="Enter task title..."
-                   required
-                   class="flex-1 border rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400">
-
-            <button type="submit"
-                    class="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg shadow">
-                Add
-            </button>
-        </form>
-    </div>
-
-    <!-- Task List -->
-    <div class="bg-white p-6 rounded-2xl shadow">
-        <h2 class="text-xl font-semibold mb-6">Your Tasks</h2>
-
-        {% if tasks %}
-            <div class="space-y-4">
-                {% for task in tasks %}
-                <div class="flex justify-between items-center border-b pb-3">
-
-                    <div>
-                        <h3 id = "task-title-{{task.id}}" class="font-medium text-lg
+                        <h3 id="task-title-{{task.id}}"
+                            class="font-medium text-lg
                             {% if task.completed %}
                                 line-through text-gray-400
                             {% else %}
-                                text-gray-800
+                                text-gray-800 dark:text-gray-200
                             {% endif %}">
                             {{ task.title }}
                         </h3>
 
-                       <button 
-                            onclick="toggleTask({{task.id}}, this)"
-                            class="px-3 py-1 rounded-lg text-sm text-white
-                            {% if task.completed %}
-                                bg-yellow-500
-                            {% else %}
-                                bg-green-500
-                            {% endif %}">
-                            
-                            {% if task.completed %}
-                                Undo
-                            {% else %}
-                                Complete
-                            {% endif %}
-                        </button>
-
-                        
-                    </div>
-
-                    <div class="flex gap-3">
-
-                        <form method="POST" action="{{ url_for('main.delete_task', task_id=task.id) }}">
-                            <button type="submit"
-                                class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm"
-                                onsubmit="return confirm('Are you sure you want to delete this task?');">
-                                Delete
+                        <div class="flex gap-3">
+                            <button onclick="toggleTask({{task.id}}, this)"
+                                class="px-4 py-2 rounded-xl text-sm text-white
+                                {% if task.completed %}
+                                    bg-yellow-500
+                                {% else %}
+                                    bg-green-500
+                                {% endif %}">
+                                {% if task.completed %}Undo{% else %}Complete{% endif %}
                             </button>
-                        </form>
 
+                            <form method="POST"
+                                  action="{{ url_for('main.delete_task', task_id=task.id) }}">
+                                <button type="submit"
+                                    class="bg-red-500 hover:bg-red-600
+                                           text-white px-4 py-2 rounded-xl text-sm">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
                     </div>
+                    {% endfor %}
                 </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <div class="text-center text-gray-500 py-10">
-                No tasks yet. Start by adding one above 🚀
-            </div>
-        {% endif %}
-    </div>
+            {% else %}
+                <div class="text-center text-gray-500 py-10">
+                    No tasks yet 🚀
+                </div>
+            {% endif %}
+        </div>
 
+    </div>
+</div>
 
 {% endblock %}
 
 {% block scripts %}
 <script>
-function toggleTask(taskId, button) {
-    fetch(`/complete/${taskId}`, {
-        method: "POST",
-        headers: {
-            "X-Requested-With": "XMLHttpRequest"
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
+function toggleDashSidebar() {
+    const sidebar = document.getElementById("dashSidebar");
+    const main = document.getElementById("mainContent");
+    const text = document.querySelectorAll(".sidebar-text");
+    const title = document.getElementById("sidebarTitle");
 
-        if (data.success) {
-            const title = document.getElementById(`task-title-${taskId}`);
+    sidebar.classList.toggle("w-64");
+    sidebar.classList.toggle("w-20");
 
-            if (data.completed) {
-                button.innerText = "Undo";
-                button.classList.remove("bg-green-500");
-                button.classList.add("bg-yellow-500");
-                title.classList.add("line-through", "text-gray-400");
-            } else {
-                button.innerText = "Complete";
-                button.classList.remove("bg-yellow-500");
-                button.classList.add("bg-green-500");
-                title.classList.remove("line-through", "text-gray-400");
-            }
-        }
+    main.classList.toggle("ml-64");
+    main.classList.toggle("ml-20");
 
-        const totalEl = document.getElementById("total-count");
-const completedEl = document.getElementById("completed-count");
-const pendingEl = document.getElementById("pending-count");
-
-let total = parseInt(totalEl.innerText);
-let completed = parseInt(completedEl.innerText);
-let pending = parseInt(pendingEl.innerText);
-
-if (data.completed) {
-    completed++;
-    pending--;
-} else {
-    completed--;
-    pending++;
-}
-
-completedEl.innerText = completed;
-pendingEl.innerText = pending;
-    });
+    text.forEach(el => el.classList.toggle("hidden"));
+    title.classList.toggle("hidden");
 }
 </script>
 {% endblock %}
