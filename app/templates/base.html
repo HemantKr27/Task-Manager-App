@@ -26,35 +26,68 @@
 <!-- Main -->
 <div class="flex-1 flex flex-col">
 
+   
     <!-- Navbar -->
-    <nav class="backdrop-blur-xl bg-white/60 dark:bg-gray-800/60
-                border-b border-white/20 dark:border-gray-700
-                shadow-lg px-6 h-16 flex justify-between items-center">
+<nav class="sticky top-0 z-40
+            backdrop-blur-xl bg-white/60 dark:bg-gray-800/60
+            border-b border-white/20 dark:border-gray-700
+            shadow-[0_8px_30px_rgb(0,0,0,0.05)] h-16 px-6 flex items-center justify-between">
 
+    <!-- Left: Sidebar Toggle -->
+    <div class="flex items-center gap-4">
         <button onclick="toggleSidebar()"
-                class="md:hidden text-2xl">
-            ☰
+                class="md:hidden text-gray-700 dark:text-gray-200 hover:scale-110 transition">
+            <!-- Heroicon Menu -->
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 class="h-6 w-6"
+                 fill="none"
+                 viewBox="0 0 24 24"
+                 stroke="currentColor">
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
         </button>
-
-        <div>
-            
-            <div>
-        {% if current_user.is_authenticated %}
-        <span class="font-medium">
-            Welcome back, {{ current_user.username }}
-        </span>
-        {% endif %}
     </div>
 
+    <!-- Center: App Title -->
+    <div class="absolute left-1/2 transform -translate-x-1/2">
+        <h1 class="text-xl font-semibold tracking-wide
+                   text-gray-800 dark:text-gray-100">
+            Task Manager
+        </h1>
+    </div>
 
-        </div>
+    <!-- Right: User + Dark Mode -->
+    <div class="flex items-center gap-4">
+
+        {% if current_user.is_authenticated %}
+        <span class="hidden sm:block text-sm text-gray-700 dark:text-gray-300">
+         {{ current_user.username }}
+        </span>
+        {% endif %}
 
         <button onclick="toggleDarkMode()"
-                class="px-3 py-2 rounded-xl bg-gray-200/60 dark:bg-gray-700/60 transition hover:scale-105">
-            🌙
+                class="p-2 rounded-xl bg-gray-200/60 dark:bg-gray-700/60
+                       hover:scale-110 transition backdrop-blur-lg">
+            <!-- Moon Icon -->
+            <svg xmlns="http://www.w3.org/2000/svg"
+                 class="h-5 w-5 text-gray-800 dark:text-gray-200"
+                 fill="none"
+                 viewBox="0 0 24 24"
+                 stroke="currentColor">
+                <path stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M21 12.79A9 9 0 1111.21 3
+                         7 7 0 0021 12.79z" />
+            </svg>
         </button>
 
-    </nav>
+    </div>
+
+</nav>
 
     <!-- Flash -->
     <div class="max-w-5xl mx-auto mt-6 px-4 w-full">
@@ -83,7 +116,7 @@
 
     <!-- Footer -->
     <footer class="text-center py-4 text-gray-500 dark:text-gray-400">
-        © 2026 Task Manager | Flask SaaS UI
+        © 2026 Task Manager
     </footer>
 
 </div>
